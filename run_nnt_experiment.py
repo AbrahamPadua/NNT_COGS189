@@ -124,13 +124,13 @@ def start_data_thread(board, stop_event, queue_in):
 def collect_video_files():
     scenario_defs = []
     video_files = {}
-    scenario_id = 0
 
     for category in CATEGORIES:
         for scenario in SCENARIOS:
             folder = os.path.join(VIDEO_DIR, category, scenario)
             if not os.path.isdir(folder):
-                raise FileNotFoundError(f"Missing folder: {folder}")
+                print(f"Skipping scenario {category}/{scenario}: missing folder ({folder})")
+                continue
 
             files = [
                 os.path.join(folder, f)
@@ -138,22 +138,28 @@ def collect_video_files():
                 if os.path.isfile(os.path.join(folder, f)) and f.lower().endswith(VIDEO_EXTS)
             ]
 
+            accessible_files = []
+            for file_path in files:
+                try:
+                    with open(file_path, "rb"):
+                        pass
+                    accessible_files.append(file_path)
+                except OSError:
+                    print(f"Ignoring inaccessible video: {file_path}")
+
+            if len(accessible_files) == 0:
+                print(f"Skipping scenario {category}/{scenario}: no accessible videos")
+                continue
+
+            scenario_id = len(scenario_defs)
+
             scenario_defs.append({
                 "id": scenario_id,
                 "category": category,
                 "scenario": scenario,
                 "folder": folder,
             })
-            video_files[scenario_id] = files
-            scenario_id += 1
-
-    missing = [s for s in scenario_defs if len(video_files[s["id"]]) == 0]
-    if missing:
-        missing_names = ", ".join([f"{m['category']}/{m['scenario']}" for m in missing])
-        raise FileNotFoundError(
-            f"No videos found for: {missing_names}.\n"
-            f"Add videos (mp4/mov/avi/mkv) to each scenario folder in {VIDEO_DIR}."
-        )
+            video_files[scenario_id] = accessible_files
 
     return scenario_defs, video_files
 
@@ -175,6 +181,10 @@ def main():
     os.makedirs(DATA_DIR, exist_ok=True)
 
     scenario_defs, video_files = collect_video_files()
+    if len(scenario_defs) == 0:
+        print(f"No accessible videos found under {VIDEO_DIR}. Nothing to run.")
+        return
+
     trial_sequence = build_trial_sequence(len(scenario_defs))
 
     kb = keyboard.Keyboard()
@@ -213,7 +223,35 @@ def main():
         total_trials = len(trial_sequence)
         for i_trial, scenario_id in enumerate(trial_sequence, start=1):
             scenario = scenario_defs[scenario_id]
-            video_path = random.choice(video_files[scenario_id])
+            if len(video_files[scenario_id]) == 0:
+                print(
+                    f"Skipping trial {i_trial}/{total_trials} - "
+                    f"{scenario['category']} {scenario['scenario']}: no accessible videos left"
+                )
+                continue
+
+            movie = None
+            video_path = None
+            while len(video_files[scenario_id]) > 0 and movie is None:
+                candidate_video = random.choice(video_files[scenario_id])
+                if not os.path.isfile(candidate_video) or not os.access(candidate_video, os.R_OK):
+                    print(f"Skipping inaccessible video during run: {candidate_video}")
+                    video_files[scenario_id].remove(candidate_video)
+                    continue
+
+                try:
+                    movie = MovieStim(window, candidate_video, loop=False, noAudio=True)
+                    video_path = candidate_video
+                except Exception as exc:
+                    print(f"Skipping unplayable video during run: {candidate_video} ({exc})")
+                    video_files[scenario_id].remove(candidate_video)
+
+            if movie is None or video_path is None:
+                print(
+                    f"Skipping trial {i_trial}/{total_trials} - "
+                    f"{scenario['category']} {scenario['scenario']}: all videos unavailable"
+                )
+                continue
 
             fixation.draw()
             window.flip()
@@ -230,7 +268,6 @@ def main():
                 "start_sample_index": int(eeg.shape[1]),
             }
 
-            movie = MovieStim(window, video_path, loop=False, noAudio=True)
             movie.play()
             stim_clock = core.Clock()
             while stim_clock.getTime() < STIM_DURATION:
