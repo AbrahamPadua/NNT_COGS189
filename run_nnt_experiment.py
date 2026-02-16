@@ -30,6 +30,7 @@ PRE_STIM_DURATION = 0.7
 STIM_DURATION = 5.0
 TRIALS_PER_SCENARIO = 100
 SEED = 1
+DEMO_MODE = True  # Set True to run without connecting to Cyton
 
 SUBJECT = 1
 SESSION = 1
@@ -178,12 +179,18 @@ def build_trial_sequence(num_scenarios):
 # -----------------------------
 
 def main():
+    demo_mode = DEMO_MODE
     os.makedirs(DATA_DIR, exist_ok=True)
 
     scenario_defs, video_files = collect_video_files()
     if len(scenario_defs) == 0:
         print(f"No accessible videos found under {VIDEO_DIR}. Nothing to run.")
         return
+
+    if demo_mode:
+        print("Running in DEMO mode: skipping Cyton connection and EEG recording.")
+    else:
+        print("Running in LIVE mode: connecting to Cyton and recording EEG.")
 
     trial_sequence = build_trial_sequence(len(scenario_defs))
 
@@ -200,11 +207,15 @@ def main():
     stop_event = Event()
     queue_in = Queue()
 
-    board = start_cyton_stream()
-    data_thread = start_data_thread(board, stop_event, queue_in)
-
-    eeg_channels = board.get_eeg_channels(CYTON_BOARD_ID)
-    aux_channels = board.get_analog_channels(CYTON_BOARD_ID)
+    board = None
+    if not demo_mode:
+        board = start_cyton_stream()
+        start_data_thread(board, stop_event, queue_in)
+        eeg_channels = board.get_eeg_channels(CYTON_BOARD_ID)
+        aux_channels = board.get_analog_channels(CYTON_BOARD_ID)
+    else:
+        eeg_channels = []
+        aux_channels = []
 
     eeg = np.zeros((len(eeg_channels), 0))
     aux = np.zeros((len(aux_channels), 0))
@@ -213,6 +224,8 @@ def main():
 
     def drain_queue():
         nonlocal eeg, aux, timestamp
+        if demo_mode:
+            return
         while not queue_in.empty():
             eeg_in, aux_in, ts_in = queue_in.get()
             eeg = np.concatenate((eeg, eeg_in), axis=1)
@@ -289,8 +302,9 @@ def main():
 
     finally:
         stop_event.set()
-        board.stop_stream()
-        board.release_session()
+        if board is not None:
+            board.stop_stream()
+            board.release_session()
         window.close()
 
         drain_queue()
@@ -308,6 +322,7 @@ def main():
                 "stim_duration": STIM_DURATION,
                 "trials_per_scenario": TRIALS_PER_SCENARIO,
                 "seed": SEED,
+                "demo_mode": demo_mode,
                 "categories": CATEGORIES,
                 "scenarios": SCENARIOS,
             }, f, indent=2)
