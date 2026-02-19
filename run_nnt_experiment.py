@@ -80,7 +80,7 @@ def find_openbci_port():
             s.write(b'v')
             line = ''
             time.sleep(2)
-            if s.in_waiting:
+            if s.inWaiting():
                 c = ''
                 while '$$$' not in line:
                     c = s.read().decode('utf-8', errors='replace')
