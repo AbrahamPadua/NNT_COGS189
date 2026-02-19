@@ -1,0 +1,21 @@
+{
+  "subject": 1,
+  "session": 1,
+  "run": 2,
+  "pre_stim_duration": 0.7,
+  "stim_duration": 5.0,
+  "trials_per_scenario": 2,
+  "seed": 1,
+  "demo_mode": false,
+  "categories": [
+    "Human",
+    "AI",
+    "Robot"
+  ],
+  "scenarios": [
+    "Neutral",
+    "Happy",
+    "Sad",
+    "Pain"
+  ]
+}

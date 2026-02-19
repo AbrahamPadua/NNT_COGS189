@@ -1,0 +1,98 @@
+[
+  {
+    "trial_index": 1,
+    "scenario_id": 1,
+    "category": "AI",
+    "scenario": "Sad",
+    "video": "videos\\AI\\Sad\\videos_AI_Sad_2288.mp4",
+    "video_backend": "imageio",
+    "stim_start_time": 1771539234.8727348,
+    "start_sample_index": 121,
+    "stim_end_time": 1771539239.914642,
+    "end_sample_index": 1444
+  },
+  {
+    "trial_index": 2,
+    "scenario_id": 3,
+    "category": "Robot",
+    "scenario": "Happy",
+    "video": "videos\\Robot\\Happy\\videos_Robot_Happy_Generating_Video_From_Two_Images.mp4",
+    "video_backend": "imageio",
+    "stim_start_time": 1771539240.709139,
+    "start_sample_index": 1564,
+    "stim_end_time": 1771539245.7682078,
+    "end_sample_index": 2887
+  },
+  {
+    "trial_index": 3,
+    "scenario_id": 0,
+    "category": "AI",
+    "scenario": "Happy",
+    "video": "videos\\AI\\Happy\\videos_AI_Happy_2291.mp4",
+    "video_backend": "imageio",
+    "stim_start_time": 1771539246.576373,
+    "start_sample_index": 3007,
+    "stim_end_time": 1771539251.618913,
+    "end_sample_index": 4330
+  },
+  {
+    "trial_index": 4,
+    "scenario_id": 2,
+    "category": "Robot",
+    "scenario": "Neutral",
+    "video": "videos\\Robot\\Neutral\\videos_Robot_Happy_0d10fa22ca0ef89dc31bee5e0290c94a-0aee438f-6e47-4290-8ae8-e27d40c242c0 (1).mp4",
+    "video_backend": "imageio",
+    "stim_start_time": 1771539252.426444,
+    "start_sample_index": 4570,
+    "stim_end_time": 1771539257.465174,
+    "end_sample_index": 5773
+  },
+  {
+    "trial_index": 5,
+    "scenario_id": 3,
+    "category": "Robot",
+    "scenario": "Happy",
+    "video": "videos\\Robot\\Happy\\videos_Robot_Happy_Generating_Video_From_Two_Images.mp4",
+    "video_backend": "imageio",
+    "stim_start_time": 1771539258.2768013,
+    "start_sample_index": 6013,
+    "stim_end_time": 1771539263.3208995,
+    "end_sample_index": 7216
+  },
+  {
+    "trial_index": 6,
+    "scenario_id": 0,
+    "category": "AI",
+    "scenario": "Happy",
+    "video": "videos\\AI\\Happy\\videos_AI_Happy_2291.mp4",
+    "video_backend": "imageio",
+    "stim_start_time": 1771539264.1297853,
+    "start_sample_index": 7456,
+    "stim_end_time": 1771539269.1738262,
+    "end_sample_index": 8658
+  },
+  {
+    "trial_index": 7,
+    "scenario_id": 2,
+    "category": "Robot",
+    "scenario": "Neutral",
+    "video": "videos\\Robot\\Neutral\\videos_Robot_Happy_0d10fa22ca0ef89dc31bee5e0290c94a-0aee438f-6e47-4290-8ae8-e27d40c242c0 (1).mp4",
+    "video_backend": "imageio",
+    "stim_start_time": 1771539269.9778748,
+    "start_sample_index": 8899,
+    "stim_end_time": 1771539275.018524,
+    "end_sample_index": 10222
+  },
+  {
+    "trial_index": 8,
+    "scenario_id": 1,
+    "category": "AI",
+    "scenario": "Sad",
+    "video": "videos\\AI\\Sad\\videos_AI_Sad_2288.mp4",
+    "video_backend": "imageio",
+    "stim_start_time": 1771539275.845665,
+    "start_sample_index": 10342,
+    "stim_end_time": 1771539280.89078,
+    "end_sample_index": 11665
+  }
+]
