@@ -41,9 +41,9 @@ FULLSCREEN = True
 PRE_STIM_DURATION = 0.7
 STIM_DURATION = 5.0
 # TRIALS_PER_SCENARIO = 100
-TRIALS_PER_SCENARIO = 3
+TRIALS_PER_SCENARIO = 1 # For quick testing
 SEED = 1
-DEMO_MODE = True  # Set True to run without connecting to Cyton
+DEMO_MODE = False # Set True to run without connecting to Cyton
 
 SUBJECT = 1
 SESSION = 1
@@ -253,8 +253,8 @@ def play_video_opencv(window, kb, video_path, duration):
                 cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
                 continue
 
-            frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
-            frame_rgb_psychopy = to_psychopy_image_array(frame_rgb)
+            frame_rgb = np.array(cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB))
+            frame_rgb_psychopy = frame_rgb.astype(np.float32) / 127.5 - 1.0
 
             if stim_size is None:
                 frame_h, frame_w = frame_rgb.shape[:2]
@@ -269,6 +269,7 @@ def play_video_opencv(window, kb, video_path, duration):
                     size=stim_size,
                     units='pix',
                     interpolate=True,
+                    flipVert=True, # Fix vertical orientation
                 )
             else:
                 image_stim.image = frame_rgb_psychopy
@@ -315,20 +316,25 @@ def play_video_imageio(window, kb, video_path, duration):
                 continue
 
             try:
-                frame_rgb = reader.get_data(frame_index)
+                frame_rgb_raw = reader.get_data(frame_index)
+                # Ensure it is a strict numpy array to avoid PsychoPy type check issues
+                frame_rgb = np.array(frame_rgb_raw)
                 frame_index += 1
             except Exception:
                 reader.close()
                 reader, fps = open_reader(video_path)
                 frame_interval = 1.0 / fps
                 frame_index = 0
-                frame_rgb = reader.get_data(frame_index)
+                frame_rgb_raw = reader.get_data(frame_index)
+                frame_rgb = np.array(frame_rgb_raw)
                 frame_index += 1
 
             if frame_rgb is None:
                 continue
 
-            frame_rgb_psychopy = to_psychopy_image_array(frame_rgb)
+            # Convert to float [-1, 1] for standard PsychoPy 'rgb' color space
+            # This is more robust than relying on 'rgb255' with varying data types
+            frame_rgb_psychopy = frame_rgb.astype(np.float32) / 127.5 - 1.0
 
             if stim_size is None:
                 frame_h, frame_w = frame_rgb.shape[:2]
@@ -343,6 +349,7 @@ def play_video_imageio(window, kb, video_path, duration):
                     size=stim_size,
                     units='pix',
                     interpolate=True,
+                    flipVert=True, # Keep orientation fix
                 )
             else:
                 image_stim.image = frame_rgb_psychopy
@@ -509,7 +516,8 @@ def main():
                     continue
 
                 try:
-                    movie = MovieStim(window, candidate_video, loop=False, noAudio=True)
+                    # Added flipVert=True to potentially fix orientation if MovieStim is used
+                    movie = MovieStim(window, candidate_video, loop=False, noAudio=True, flipVert=True)
                     video_path = candidate_video
                     playback_backend = "psychopy"
                 except Exception as exc:
@@ -523,7 +531,8 @@ def main():
 
                     if transcoded_path is not None:
                         try:
-                            movie = MovieStim(window, transcoded_path, loop=False, noAudio=True)
+                            # Added flipVert=True to potentially fix orientation if MovieStim is used
+                            movie = MovieStim(window, transcoded_path, loop=False, noAudio=True, flipVert=True)
                             video_path = transcoded_path
                             playback_backend = "psychopy"
                             print(
