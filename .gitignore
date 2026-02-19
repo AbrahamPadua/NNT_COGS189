@@ -1,5 +1,11 @@
+# environment
+__pycache__
+/bci_env
+
+# videos
 /videos
 
+# data
 /data
 /bci_env
 /.venv
