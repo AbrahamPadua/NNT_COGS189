@@ -58,6 +58,9 @@ SCENARIOS = ["Neutral", "Happy", "Sad", "Pain"]
 VIDEO_EXTS = (".mp4", ".mov", ".avi", ".mkv")
 PREFERRED_VIDEO_BACKEND = "imageio"  # Options: "imageio", "opencv", "psychopy"
 
+# Video Constants
+CONTRAST_REDUCTION = 0.5  # Reduce contrast to 50% to mitigate potential issues with high-contrast videos
+
 # -----------------------------
 # Cyton / Dongle helpers
 # -----------------------------
@@ -270,11 +273,12 @@ def play_video_opencv(window, kb, video_path, duration):
                     units='pix',
                     interpolate=True,
                     flipVert=True, # Fix vertical orientation
+                    contrast=CONTRAST_REDUCTION,  # Decrease contrast
                 )
             else:
                 image_stim.image = frame_rgb_psychopy
 
-            image_stim.draw()
+            image_stim.draw()   
             window.flip()
     finally:
         cap.release()
@@ -334,7 +338,7 @@ def play_video_imageio(window, kb, video_path, duration):
 
             # Convert to float [-1, 1] for standard PsychoPy 'rgb' color space
             # This is more robust than relying on 'rgb255' with varying data types
-            frame_rgb_psychopy = frame_rgb.astype(np.float32) / 127.5 - 1.0
+            frame_rgb_psychopy = frame_rgb.astype(np.float32) / 90 - 1.0
 
             if stim_size is None:
                 frame_h, frame_w = frame_rgb.shape[:2]
@@ -350,6 +354,7 @@ def play_video_imageio(window, kb, video_path, duration):
                     units='pix',
                     interpolate=True,
                     flipVert=True, # Keep orientation fix
+                    contrast=CONTRAST_REDUCTION   # Decrease contrast (1.0 is default, 0.5 is 50% contrast)
                 )
             else:
                 image_stim.image = frame_rgb_psychopy
@@ -518,6 +523,7 @@ def main():
                 try:
                     # Added flipVert=True to potentially fix orientation if MovieStim is used
                     movie = MovieStim(window, candidate_video, loop=False, noAudio=True, flipVert=True)
+                    movie.contrast = CONTRAST_REDUCTION  # Decrease contrast
                     video_path = candidate_video
                     playback_backend = "psychopy"
                 except Exception as exc:
@@ -533,6 +539,7 @@ def main():
                         try:
                             # Added flipVert=True to potentially fix orientation if MovieStim is used
                             movie = MovieStim(window, transcoded_path, loop=False, noAudio=True, flipVert=True)
+                            movie.contrast = CONTRAST_REDUCTION  # Decrease contrast
                             video_path = transcoded_path
                             playback_backend = "psychopy"
                             print(
