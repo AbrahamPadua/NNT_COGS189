@@ -53,8 +53,10 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 VIDEO_DIR = os.path.join(BASE_DIR, "videos")
 DATA_DIR = os.path.join(BASE_DIR, "data", f"sub-{SUBJECT:02d}", f"ses-{SESSION:02d}", f"run-{RUN:02d}")
 
-CATEGORIES = ["Human", "AI", "Robot"]
-SCENARIOS = ["Neutral", "Happy", "Sad", "Pain"]
+# CATEGORIES = ["Human", "AI", "Robot"]
+CATEGORIES = ["Human", "AI"]
+# SCENARIOS = ["Neutral", "Happy", "Sad", "Pain"]
+SCENARIOS = ["Neutral", "Happy"]
 VIDEO_EXTS = (".mp4", ".mov", ".avi", ".mkv")
 PREFERRED_VIDEO_BACKEND = "imageio"  # Options: "imageio", "opencv", "psychopy"
 
