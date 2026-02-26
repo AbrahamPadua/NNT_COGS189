@@ -6,6 +6,6 @@ __pycache__
 /videos
 
 # data
-/data
+# /data
 /bci_env
 /.venv
